@@ -32,8 +32,6 @@ def main():
 						pygame.draw.circle(screen, color, p, 1)
 				pygame.display.flip() # Update the display
 
-
-
 def is_quit_event(event):
 	return event.type == QUIT or event.type == KEYDOWN and event.key == K_ESCAPE
 		
