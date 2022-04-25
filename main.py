@@ -5,6 +5,8 @@ from pygame.locals import K_ESCAPE, K_RETURN
 from polygon_builder import PolygonBuilder
 from config import WINDOW_TITLE, WINDOW_SIZE
 
+from polygon_utils import is_ccw
+
 def main():
 	pygame.init()
 	pygame.display.set_caption(WINDOW_TITLE)
@@ -21,7 +23,7 @@ def main():
 		elif event.type == KEYDOWN and event.key == K_RETURN:
 			polygon = poly_builder.get_polygon()
 			if polygon:
-				print('Triangulate')
+				print(f'is_ccw {is_ccw(polygon)}')
 
 def is_quit_event(event):
 	return event.type == QUIT or event.type == KEYDOWN and event.key == K_ESCAPE
