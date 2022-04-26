@@ -26,8 +26,8 @@ class PolygonBuilder:
 			self._add_vertex(pos)
 			self._needs_draw = True
 		elif event.type == KEYDOWN and event.key == K_BACKSPACE:
-				self._delete_vertex()
-				self._needs_draw = True
+			self._delete_vertex()
+			self._needs_draw = True
 
 	def get_polygon(self):
 		if self._polygon_closed and not self._intersections():
@@ -48,7 +48,7 @@ class PolygonBuilder:
 			pygame.draw.circle(self._screen, RED, p, PolygonBuilder.VERTEX_SIZE)
 
 	def _add_vertex(self, pos):
-		if not self._polygon_closed:
+		if not self._polygon_closed and pos not in self._polygon:
 			if len(self._polygon) >= 3 and dist(self._polygon[0], pos) <= PolygonBuilder.MAX_SNAP_DIST: 
 				pos = self._polygon[0]
 				self._polygon_closed = True
