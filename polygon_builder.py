@@ -78,7 +78,7 @@ class PolygonBuilder:
 		c = self._polygon[j]
 		d = self._polygon[(j+1)%n]
 
-		return ((left_of_line(a,b,c) != left_of_line(a,b,d) and
-            left_of_line(c,d,a) != left_of_line(c,d,b)) or
-            on_segment(a,b,c) or on_segment(a,b,d) or 
-            on_segment(c,d,a) or on_segment(c,d,b))
+		return ((left_of_line((a,b),c) != left_of_line((a,b),d) and
+            left_of_line((c,d),a) != left_of_line((c,d),b)) or
+            on_segment((a,b),c) or on_segment((a,b),d) or 
+            on_segment((c,d),a) or on_segment((c,d),b))

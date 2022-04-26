@@ -34,17 +34,20 @@ def _winding_number(poly, point):
 
 	return winding_num
 
-def left_of_line(a, b, c):
-	'Return true iff c is to the left of line ab'
-	return (b[0]-a[0])*(c[1]-a[1]) - (b[1]-a[1])*(c[0]-a[0]) > 0
+def left_of_line(line, p):
+	'Return true iff p is to the left of the line'
+	a,b = line
+	return (b[0]-a[0])*(p[1]-a[1]) - (b[1]-a[1])*(p[0]-a[0]) > 0
 
-def on_line(a, b, c):
-	'Return true iff c is on the line ab'
-	return (b[0]-a[0])*(c[1]-a[1]) - (b[1]-a[1])*(c[0]-a[0]) == 0
+def on_line(line, p):
+	'Return true iff p is on the line'
+	a,b = line
+	return (b[0]-a[0])*(p[1]-a[1]) - (b[1]-a[1])*(p[0]-a[0]) == 0
 
-def on_segment(a, b, c):
-	'Return true iff c is on the line segment ab'
-	return collinear(a,b,c) and between(a[0],c[0],b[0]) and between(a[1],c[1],b[1])
+def on_segment(seg, p):
+	'Return true iff p is on the line segment'
+	a,b = seg
+	return collinear(a,b,p) and between(a[0],p[0],b[0]) and between(a[1],p[1],b[1])
 
 def collinear(a, b, c):
 	'Return true iff points a, b, and c are collinear'
