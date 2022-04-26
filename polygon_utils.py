@@ -77,3 +77,10 @@ def collinear(a, b, c):
 def between(p, q, r):
 	'Return true iff q is between p and r (inclusive)'
 	return p <= q <= r or r <= q <= p
+
+def segment_segment_intersect(seg1, seg2):
+	'Return true iff the line segments intersect'
+	return ((left_of_line(seg1,seg2[0]) != left_of_line(seg1,seg2[1]) and
+			 left_of_line(seg2,seg1[0]) != left_of_line(seg2,seg1[1])) or
+        	 on_segment(seg1,seg2[0]) or on_segment(seg1,seg2[1]) or 
+             on_segment(seg2,seg1[0]) or on_segment(seg2,seg1[1]))

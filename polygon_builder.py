@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import KEYDOWN, MOUSEBUTTONDOWN, K_BACKSPACE
 from math import dist
 from config import RED, GREEN, BLACK
-from polygon_utils import left_of_line, on_segment
+from polygon_utils import left_of_line, on_segment, segment_segment_intersect
 
 class PolygonBuilder:
 	
@@ -65,20 +65,10 @@ class PolygonBuilder:
 		idx = set()
 		for i in range(n_edges):
 			for j in range(i+2, n_edges):
-				if not (self._polygon_closed and (j+1)%n_edges == i) and self._has_intersection(i, j):
-					idx.add(i)
-					idx.add(j)
+				if not (self._polygon_closed and (j+1)%n_edges == i):
+					seg1 = (self._polygon[i],self._polygon[i+1])
+					seg2 = (self._polygon[j],self._polygon[j+1])
+					if segment_segment_intersect(seg1, seg2):
+						idx.add(i)
+						idx.add(j)
 		return idx
-
-	def _has_intersection(self, i, j):
-		n = len(self._polygon)
-
-		a = self._polygon[i]
-		b = self._polygon[(i+1)%n]
-		c = self._polygon[j]
-		d = self._polygon[(j+1)%n]
-
-		return ((left_of_line((a,b),c) != left_of_line((a,b),d) and
-            left_of_line((c,d),a) != left_of_line((c,d),b)) or
-            on_segment((a,b),c) or on_segment((a,b),d) or 
-            on_segment((c,d),a) or on_segment((c,d),b))
