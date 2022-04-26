@@ -25,11 +25,11 @@ def main():
 			if polygon:
 				print(f'is_ccw {is_ccw(polygon)}')
 
-				for x in range(0,WINDOW_SIZE[0],5):
-					for y in range(0,WINDOW_SIZE[1],5):
+				for x in range(0,WINDOW_SIZE[0],1):
+					for y in range(0,WINDOW_SIZE[1],1):
 						p = (x,y)
 						color = BLUE if point_inside(polygon, p) else RED
-						pygame.draw.circle(screen, color, p, 1)
+						screen.set_at(p, color)
 				pygame.display.flip() # Update the display
 
 def is_quit_event(event):

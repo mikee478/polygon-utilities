@@ -9,17 +9,17 @@ def is_ccw(poly, inverted_y_axis = True):
 		twice_area += (b[0]-a[0])*(b[1]+a[1])
 	return twice_area > 0 if inverted_y_axis else twice_area < 0
 
-def point_inside(poly, point, method='winding number'):
+def point_inside(poly, p, method='winding number'):
 	if method == 'winding number':
-		return not np.isclose(_winding_number(poly, point),0)
+		return not np.isclose(_winding_number(poly, p),0)
 	elif method == 'ray casting':
-		pass
+		return _ray_casting_intersections(poly, p) % 2 == 1
 	else:
 		raise ValueError('Variable method should be "winding number" or "ray casting"')
 
-def _winding_number(poly, point):
+def _winding_number(poly, p):
 	poly = np.array(poly)
-	poly -= point # center point on origin
+	poly -= p # center point on origin
 	
 	angles = np.arctan2(poly[:,1],poly[:,0]) # [-pi, pi]
 	
@@ -33,6 +33,27 @@ def _winding_number(poly, point):
 	winding_num = np.rint(np.sum(deltas) / (2*np.pi))
 
 	return winding_num
+
+def _ray_casting_intersections(poly, p):
+	'''Return the number ray polygon intersections where the origin
+	 of the ray is p and the direction is positive x'''
+	q = (p[0]+1,p[1])
+	count = 0
+	n = len(poly)
+	for i,a in enumerate(poly):
+		b = poly[(i+1)%n]
+
+		if not (p[1] == a[1] == b[1]): # ignore horizontal line seg
+			if (a[0] >= p[0] and a[1] == p[1]): # a is on the ray
+				if b[1] > p[1]: # b is below the ray
+					count += 1
+			elif left_of_line((p,q), a) != left_of_line((p,q), b): # a and b on opp sides of ray
+				if b[1] < a[1]: # a is the lower point
+					a,b = b,a
+				if(left_of_line((a,b), p)):
+					count += 1
+	return count
+
 
 def left_of_line(line, p):
 	'Return true iff p is to the left of the line'
