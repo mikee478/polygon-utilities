@@ -10,7 +10,7 @@ def is_ccw(poly, inverted_y_axis=True):
 		twice_area += (b[0]-a[0])*(b[1]+a[1])
 	return twice_area > 0 if inverted_y_axis else twice_area < 0
 
-def point_inside(poly, p, method='windingnumber'):
+def point_inside(poly, p, method='raycasting'):
 	'Return true if p is inside poly'
 	if method == 'windingnumber':
 		return not np.isclose(_winding_number(poly, p),0)
@@ -46,13 +46,15 @@ def _ray_casting_intersections(poly, p):
 		b = poly[(i+1)%n]
 
 		if not (p[1] == a[1] == b[1]): # ignore horizontal line seg
-			if (a[0] >= p[0] and a[1] == p[1]): # a is on the ray
-				if b[1] > p[1]: # b is below the ray
+			if a[0] >= p[0] and a[1] == p[1]: # a on ray
+				if b[1] > p[1]: # b under ray
 					count += 1
-			elif left_of_line((p,q), a) != left_of_line((p,q), b): # a and b on opp sides of ray
-				if b[1] < a[1]: # a is the lower point
-					a,b = b,a
-				if(left_of_line((a,b), p)):
+			elif b[0] >= p[0] and b[1] == p[1]: # b on ray
+				if a[1] > p[1]: # a under ray
+					count += 1
+			elif left_of_line((p,q), a) != left_of_line((p,q), b): # a and b on opp sides
+				if (a[1] > b[1] and left_of_line((a,b), p) or
+					a[1] < b[1] and left_of_line((b,a), p)):
 					count += 1
 	return count
 
@@ -131,3 +133,20 @@ def _ear_clipping_triangulation(poly):
 				del cur_idx[i]
 				break
 	return diags
+
+def random_in_polygon(poly, n, rand_method='rejectionsampling', point_inside_method='raycasting'):
+	'Return n random, uniformly distributed points within the polygon'
+	points = []
+	if rand_method == 'rejectionsampling':
+		poly = np.array(poly)
+		mins = np.min(poly, axis=0)
+		maxs = np.max(poly, axis=0)
+		while len(points) < n:
+			x = np.random.random_integers(mins[0],maxs[0])
+			y = np.random.random_integers(mins[1],maxs[1])
+			p = (x,y)
+			if point_inside(poly, p, method=point_inside_method):
+				points.append(p)
+	else:
+		raise ValueError('rand_method should be "rejectionsampling"')
+	return points

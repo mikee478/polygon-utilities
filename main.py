@@ -4,7 +4,7 @@ from pygame.locals import K_ESCAPE, K_RETURN
 
 from polygon_builder import PolygonBuilder
 from config import WINDOW_TITLE, WINDOW_SIZE, RED, BLUE, YELLOW
-from polygon_utils import triangulate
+from polygon_utils import triangulate, random_in_polygon
 
 def main():
 	pygame.init()
@@ -24,9 +24,13 @@ def main():
 			if poly:
 				print(f'polygon: {poly}\n')
 
-				diag_idx = triangulate(poly)
-				for i,j in diag_idx:
-					pygame.draw.line(screen, YELLOW, poly[i], poly[j], 1)
+				# diag_idx = triangulate(poly)
+				# for i,j in diag_idx:
+				# 	pygame.draw.line(screen, YELLOW, poly[i], poly[j], 1)
+
+				points = random_in_polygon(poly, 5000)
+				for p in points:
+					pygame.draw.circle(screen, YELLOW, p, 1)
 
 				pygame.display.flip() # Update the display
 
