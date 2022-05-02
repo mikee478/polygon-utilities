@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import KEYDOWN, MOUSEBUTTONDOWN, K_BACKSPACE
 from math import dist
 from config import RED, GREEN, BLACK
-from polygon_utils import left_of_line, on_segment, segment_segment_intersect
+from polygon_utils import segment_segment_intersect, is_ccw
 
 class PolygonBuilder:
 	
@@ -31,7 +31,8 @@ class PolygonBuilder:
 
 	def get_polygon(self):
 		if self._polygon_closed and not self._intersections():
-			return self._polygon[:-1]
+			ret = self._polygon[:-1] # ignore duplicated last element
+			return ret if is_ccw(ret) else ret[::-1]
 
 	def _draw_screen(self):
 		self._screen.fill(BLACK) # Clear screen

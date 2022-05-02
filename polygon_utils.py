@@ -1,6 +1,6 @@
 import numpy as np
 
-def is_ccw(poly, inverted_y_axis = True):
+def is_ccw(poly, inverted_y_axis=True):
 	twice_area = 0
 	n = len(poly)
 	for i in range(len(poly)):
@@ -9,13 +9,13 @@ def is_ccw(poly, inverted_y_axis = True):
 		twice_area += (b[0]-a[0])*(b[1]+a[1])
 	return twice_area > 0 if inverted_y_axis else twice_area < 0
 
-def point_inside(poly, p, method='winding number'):
-	if method == 'winding number':
+def point_inside(poly, p, method='windingnumber'):
+	if method == 'windingnumber':
 		return not np.isclose(_winding_number(poly, p),0)
-	elif method == 'ray casting':
+	elif method == 'raycasting':
 		return _ray_casting_intersections(poly, p) % 2 == 1
 	else:
-		raise ValueError('Variable method should be "winding number" or "ray casting"')
+		raise ValueError('method should be "windingnumber" or "raycasting"')
 
 def _winding_number(poly, p):
 	poly = np.array(poly)
@@ -54,11 +54,11 @@ def _ray_casting_intersections(poly, p):
 					count += 1
 	return count
 
-
-def left_of_line(line, p):
+def left_of_line(line, p, inverted_y_axis=True):
 	'Return true iff p is to the left of the line'
 	a,b = line
-	return (b[0]-a[0])*(p[1]-a[1]) - (b[1]-a[1])*(p[0]-a[0]) > 0
+	val = (b[0]-a[0])*(p[1]-a[1]) - (b[1]-a[1])*(p[0]-a[0])
+	return val < 0 if inverted_y_axis else v > 0
 
 def on_line(line, p):
 	'Return true iff p is on the line'
@@ -84,3 +84,41 @@ def segment_segment_intersect(seg1, seg2):
 			 left_of_line(seg2,seg1[0]) != left_of_line(seg2,seg1[1])) or
         	 on_segment(seg1,seg2[0]) or on_segment(seg1,seg2[1]) or 
              on_segment(seg2,seg1[0]) or on_segment(seg2,seg1[1]))
+
+def triangulate(poly, method='earclipping'):
+	if method == 'earclipping':
+		return _ear_clipping_triangulation(poly)
+	else:
+		raise ValueError('method should be "earclipping"')
+
+def _is_ear(poly, i):
+	n = len(poly)
+	a = poly[(i-1)%n]
+	b = poly[i]
+	c = poly[(i+1)%n]
+
+	# check convex
+	if not left_of_line((a,b),c):
+		return False
+
+	# check vertex inside abc
+	for p in poly:
+		if p not in (a,b,c) and point_inside((a,b,c),p):
+			return False
+
+	return True
+
+def _ear_clipping_triangulation(poly):
+	diags = []
+	n = len(poly)
+	cur_poly = list(poly)
+	cur_idx = list(range(n))
+	while len(diags) != n-3:
+		cur_n = len(cur_poly)
+		for i in range(cur_n):
+			if _is_ear(cur_poly, i):
+				diags.append((cur_idx[(i-1)%cur_n],cur_idx[(i+1)%cur_n]))
+				del cur_poly[i]
+				del cur_idx[i]
+				break
+	return diags

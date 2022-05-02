@@ -3,9 +3,9 @@ from pygame import QUIT, KEYDOWN
 from pygame.locals import K_ESCAPE, K_RETURN
 
 from polygon_builder import PolygonBuilder
-from config import WINDOW_TITLE, WINDOW_SIZE, RED, BLUE
+from config import WINDOW_TITLE, WINDOW_SIZE, RED, BLUE, YELLOW
 
-from polygon_utils import is_ccw, point_inside
+from polygon_utils import triangulate
 
 def main():
 	pygame.init()
@@ -23,13 +23,12 @@ def main():
 		elif event.type == KEYDOWN and event.key == K_RETURN:
 			polygon = poly_builder.get_polygon()
 			if polygon:
-				print(f'is_ccw {is_ccw(polygon)}')
+				print(f'polygon: {polygon}\n')
 
-				for x in range(0,WINDOW_SIZE[0],1):
-					for y in range(0,WINDOW_SIZE[1],1):
-						p = (x,y)
-						color = BLUE if point_inside(polygon, p) else RED
-						screen.set_at(p, color)
+				diags = triangulate(polygon)
+				for index, (i,j) in enumerate(diags):
+					pygame.draw.line(screen, YELLOW, polygon[i], polygon[j], 1)
+
 				pygame.display.flip() # Update the display
 
 def is_quit_event(event):
