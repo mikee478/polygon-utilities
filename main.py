@@ -4,7 +4,6 @@ from pygame.locals import K_ESCAPE, K_RETURN
 
 from polygon_builder import PolygonBuilder
 from config import WINDOW_TITLE, WINDOW_SIZE, RED, BLUE, YELLOW
-
 from polygon_utils import triangulate
 
 def main():
@@ -21,17 +20,18 @@ def main():
 		if is_quit_event(event):
 			break
 		elif event.type == KEYDOWN and event.key == K_RETURN:
-			polygon = poly_builder.get_polygon()
-			if polygon:
-				print(f'polygon: {polygon}\n')
+			poly = poly_builder.get_polygon()
+			if poly:
+				print(f'polygon: {poly}\n')
 
-				diags = triangulate(polygon)
-				for index, (i,j) in enumerate(diags):
-					pygame.draw.line(screen, YELLOW, polygon[i], polygon[j], 1)
+				diag_idx = triangulate(poly)
+				for i,j in diag_idx:
+					pygame.draw.line(screen, YELLOW, poly[i], poly[j], 1)
 
 				pygame.display.flip() # Update the display
 
 def is_quit_event(event):
+	'Returns true if event is a quit event'
 	return event.type == QUIT or event.type == KEYDOWN and event.key == K_ESCAPE
 		
 if __name__ == '__main__':

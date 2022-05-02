@@ -13,33 +13,32 @@ class PolygonBuilder:
 	def __init__(self, screen):
 		self._polygon = []
 		self._polygon_closed = False
-		self._needs_draw = True
 		self._screen = screen
 
 	def update(self, event):
-		if self._needs_draw:
-			self._needs_draw = False;
-			self._draw_screen()
-		
+		'Update the polygon based on the event'
+		needs_draw = False
 		if event.type == MOUSEBUTTONDOWN:
 			pos = pygame.mouse.get_pos()
 			self._add_vertex(pos)
-			self._needs_draw = True
+			needs_draw = True
 		elif event.type == KEYDOWN and event.key == K_BACKSPACE:
 			self._delete_vertex()
-			self._needs_draw = True
+			needs_draw = True
+
+		if needs_draw:
+			self._screen.fill(BLACK) # Clear screen
+			self._draw_polygon()
+			pygame.display.flip() # Update the display
 
 	def get_polygon(self):
+		'Return a list of tuples representing a ccw, closed polygon'
 		if self._polygon_closed and not self._intersections():
 			ret = self._polygon[:-1] # ignore duplicated last element
 			return ret if is_ccw(ret) else ret[::-1]
 
-	def _draw_screen(self):
-		self._screen.fill(BLACK) # Clear screen
-		self._draw_polygon()
-		pygame.display.flip() # Update the display
-
 	def _draw_polygon(self):
+		'Draw polygon edges then vertices'
 		inter = self._intersections()
 		for i in range(len(self._polygon) - 1):
 			edge_color = RED if i in inter else GREEN
@@ -49,6 +48,7 @@ class PolygonBuilder:
 			pygame.draw.circle(self._screen, RED, p, PolygonBuilder.VERTEX_SIZE)
 
 	def _add_vertex(self, pos):
+		'Add a vertex to the polygon or close the polygon'
 		if not self._polygon_closed and pos not in self._polygon:
 			if len(self._polygon) >= 3 and dist(self._polygon[0], pos) <= PolygonBuilder.MAX_SNAP_DIST: 
 				pos = self._polygon[0]
@@ -56,11 +56,13 @@ class PolygonBuilder:
 			self._polygon.append(pos)
 
 	def _delete_vertex(self):
+		'Delete the last added vertex'
 		if self._polygon:
 			del self._polygon[-1]
 			self._polygon_closed = False
 
 	def _intersections(self):
+		'Return a set of edge indices that have intersections'
 		n_edges = len(self._polygon) - 1
 
 		idx = set()

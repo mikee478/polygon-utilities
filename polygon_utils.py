@@ -1,6 +1,7 @@
 import numpy as np
 
 def is_ccw(poly, inverted_y_axis=True):
+	'Return true if polygon vertices are counterclockwise.'
 	twice_area = 0
 	n = len(poly)
 	for i in range(len(poly)):
@@ -10,6 +11,7 @@ def is_ccw(poly, inverted_y_axis=True):
 	return twice_area > 0 if inverted_y_axis else twice_area < 0
 
 def point_inside(poly, p, method='windingnumber'):
+	'Return true if p is inside poly'
 	if method == 'windingnumber':
 		return not np.isclose(_winding_number(poly, p),0)
 	elif method == 'raycasting':
@@ -18,6 +20,7 @@ def point_inside(poly, p, method='windingnumber'):
 		raise ValueError('method should be "windingnumber" or "raycasting"')
 
 def _winding_number(poly, p):
+	'Compute and return the winding number around p'
 	poly = np.array(poly)
 	poly -= p # center point on origin
 	
@@ -35,8 +38,7 @@ def _winding_number(poly, p):
 	return winding_num
 
 def _ray_casting_intersections(poly, p):
-	'''Return the number ray polygon intersections where the origin
-	 of the ray is p and the direction is positive x'''
+	'Return the number ray (origin=p, dir=(1,0)) polygon intersections'
 	q = (p[0]+1,p[1])
 	count = 0
 	n = len(poly)
@@ -68,7 +70,9 @@ def on_line(line, p):
 def on_segment(seg, p):
 	'Return true iff p is on the line segment'
 	a,b = seg
-	return collinear(a,b,p) and between(a[0],p[0],b[0]) and between(a[1],p[1],b[1])
+	return (collinear(a,b,p) and 
+	between(a[0],p[0],b[0]) and 
+	between(a[1],p[1],b[1]))
 
 def collinear(a, b, c):
 	'Return true iff points a, b, and c are collinear'
@@ -82,16 +86,19 @@ def segment_segment_intersect(seg1, seg2):
 	'Return true iff the line segments intersect'
 	return ((left_of_line(seg1,seg2[0]) != left_of_line(seg1,seg2[1]) and
 			 left_of_line(seg2,seg1[0]) != left_of_line(seg2,seg1[1])) or
-        	 on_segment(seg1,seg2[0]) or on_segment(seg1,seg2[1]) or 
+        	 on_segment(seg1,seg2[0]) or on_segment(seg1,seg2[1]) or
              on_segment(seg2,seg1[0]) or on_segment(seg2,seg1[1]))
 
 def triangulate(poly, method='earclipping'):
+	'''Return a list of tuples of polygon indices representing diagonals
+	for a triangulation'''
 	if method == 'earclipping':
 		return _ear_clipping_triangulation(poly)
 	else:
 		raise ValueError('method should be "earclipping"')
 
 def _is_ear(poly, i):
+	'Return true if vertex i of poly is an ear'
 	n = len(poly)
 	a = poly[(i-1)%n]
 	b = poly[i]
@@ -109,6 +116,8 @@ def _is_ear(poly, i):
 	return True
 
 def _ear_clipping_triangulation(poly):
+	'''Return a list of tuples of polygon indices representing diagonals
+	for a ear clipping triangulation'''
 	diags = []
 	n = len(poly)
 	cur_poly = list(poly)
