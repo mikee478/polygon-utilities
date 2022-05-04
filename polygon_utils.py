@@ -126,9 +126,10 @@ def _is_ear(poly, i):
 
 	return True
 
-def _ear_clipping_triangulation(poly):
+def _ear_clipping_triangulation_old(poly):
 	'''Return a tuple containing a list of indices of diagonals and 
-	a list of indices of triangles for an ear clipping triangulation'''
+	a list of indices of triangles for an ear clipping triangulation.
+	O(n^3) implementation'''
 	diags = []
 	tris = []
 	n = len(poly)
@@ -145,6 +146,43 @@ def _ear_clipping_triangulation(poly):
 				del cur_idx[i]
 				break
 	tris.append((cur_idx[0],cur_idx[1],cur_idx[2]))
+	return diags, tris
+
+def _ear_clipping_triangulation(poly):
+	'''Return a tuple containing a list of indices of diagonals and 
+	a list of indices of triangles for an ear clipping triangulation.
+	O(n^2) implementation'''
+	n = len(poly)
+	cur_poly = list(poly)
+	cur_idx = list(range(n))
+
+	ear_idx = {i for i in range(n) if _is_ear(cur_poly, i)}
+	nexts = [(i+1)%n for i in range(n)]
+	prevs = [(i-1)%n for i in range(n)]
+
+	diags = []
+	tris = []
+	while ear_idx and len(diags) != n-3:
+		i = ear_idx.pop()
+		cur_poly.remove(poly[i])
+
+		prev_i, next_i = prevs[i], nexts[i]
+		diags.append((prev_i, next_i))
+		tris.append((prev_i, i, next_i))
+
+		nexts[prev_i] = next_i
+		prevs[next_i] = prev_i
+
+		for j in (prev_i, next_i):
+			is_ear = _is_ear(cur_poly, cur_poly.index(poly[j]))
+			if is_ear and j not in ear_idx:
+				ear_idx.add(j)
+			elif not is_ear and j in ear_idx:
+				ear_idx.remove(j)
+
+	i = ear_idx.pop()
+	tris.append((prevs[i], i, nexts[i]))
+
 	return diags, tris
 
 def _polygon_rejection_sampling(poly, n, point_inside_method='raycasting'):

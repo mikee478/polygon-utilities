@@ -1,10 +1,11 @@
 import pygame
 from pygame import QUIT, KEYDOWN
 from pygame.locals import K_ESCAPE, K_RETURN
+import time
 
 from polygon_builder import PolygonBuilder
 from config import WINDOW_TITLE, WINDOW_SIZE, RED, BLUE, YELLOW
-from polygon_utils import triangulate, random_in_polygon
+from polygon_utils import triangulate, random_in_polygon, _ear_clipping_triangulation, _ear_clipping_triangulation_old
 
 def main():
 	pygame.init()
@@ -33,9 +34,22 @@ def main():
 				# for i,j,k in tris:
 				# 	pygame.draw.lines(screen, YELLOW, True, (poly[i], poly[j], poly[k]), 3)
 
-				points = random_in_polygon(poly, 5000)
-				for p in points:
-					pygame.draw.circle(screen, YELLOW, p, 1)
+				# points = random_in_polygon(poly, 5000)
+				# for p in points:
+				# 	pygame.draw.circle(screen, YELLOW, p, 1)
+
+				a = time.time()
+				diags, tris = _ear_clipping_triangulation(poly)
+				b = time.time()
+				print(f'new: {b-a}')
+
+				a = time.time()
+				diags, tris = _ear_clipping_triangulation_old(poly)
+				b = time.time()
+				print(f'old: {b-a}')
+
+				for i,j,k in tris:
+					pygame.draw.lines(screen, YELLOW, True, (poly[i], poly[j], poly[k]), 3)
 
 				pygame.display.flip() # Update the display
 
