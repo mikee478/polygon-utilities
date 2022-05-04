@@ -24,9 +24,14 @@ def main():
 			if poly:
 				print(f'polygon: {poly}\n')
 
-				# diag_idx = triangulate(poly)
-				# for i,j in diag_idx:
-				# 	pygame.draw.line(screen, YELLOW, poly[i], poly[j], 1)
+				# diags, tris = triangulate(poly)
+				# for i,j in diags:
+					# pygame.draw.line(screen, YELLOW, poly[i], poly[j], 1)
+
+				# screen.fill((0,0,0)) # Clear screen
+
+				# for i,j,k in tris:
+				# 	pygame.draw.lines(screen, YELLOW, True, (poly[i], poly[j], poly[k]), 3)
 
 				points = random_in_polygon(poly, 5000)
 				for p in points:
