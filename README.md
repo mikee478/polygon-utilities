@@ -4,6 +4,7 @@ A **simple** tool to build **simple** polygons
 
 ## Included Utilities
 - Counter clockwise testing
+- Self-intersection testing
 - Point in polygon testing
   - Winding number
   - Ray casting
