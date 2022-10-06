@@ -1,7 +1,10 @@
 import numpy as np
 from operator import sub
 
-def is_ccw(poly, inverted_y_axis=True):
+# Set to true to work with Pygame 
+INVERTED_Y_AXIS = True
+
+def is_ccw(poly):
 	'Return true iff polygon vertices are counterclockwise.'
 	twice_area = 0
 	n = len(poly)
@@ -9,7 +12,7 @@ def is_ccw(poly, inverted_y_axis=True):
 		a = poly[i]
 		b = poly[(i+1)%n]
 		twice_area += (b[0]-a[0])*(b[1]+a[1])
-	return twice_area > 0 if inverted_y_axis else twice_area < 0
+	return twice_area > 0 if INVERTED_Y_AXIS else twice_area < 0
 
 def point_inside(poly, p, method='raycasting'):
 	'Return true iff p is inside poly'
@@ -39,7 +42,7 @@ def _winding_number(poly, p):
 	return winding_num
 
 def _ray_casting_intersections(poly, p):
-	'Return the number ray (origin=p, dir=(1,0)) polygon intersections'
+	'Return the number of ray (origin=p, dir=(1,0)) polygon intersections'
 	q = (p[0]+1,p[1])
 	count = 0
 	n = len(poly)
@@ -48,16 +51,20 @@ def _ray_casting_intersections(poly, p):
 
 		if not (p[1] == a[1] == b[1]): # ignore horizontal line seg
 			if a[0] >= p[0] and a[1] == p[1]: # a on ray
-				if b[1] > p[1]: # b under ray
+				if _below_point(b,p): # b under ray
 					count += 1
 			elif b[0] >= p[0] and b[1] == p[1]: # b on ray
-				if a[1] > p[1]: # a under ray
+				if _below_point(a,p): # a under ray
 					count += 1
 			elif left_of_line((p,q), a) != left_of_line((p,q), b): # a and b on opp sides
-				if (a[1] > b[1] and left_of_line((a,b), p) or
-					a[1] < b[1] and left_of_line((b,a), p)):
+				if (_below_point(a,b) and left_of_line((a,b), p) or
+					_below_point(b,a) and left_of_line((b,a), p)):
 					count += 1
 	return count
+
+def _below_point(a, b):
+	'Return true iff point a is below point b'
+	return a[1] > b[1] if INVERTED_Y_AXIS else a[1] < b[1]
 
 def _tuple_sub(a, b):
 	'Return the elementwise subtraction of tuples a and b'
@@ -67,11 +74,11 @@ def _cross_prod_2d(a, b):
 	'Return the magnitude of the cross product of a and b as if they were vec3'
 	return a[0]*b[1] - a[1]*b[0]
 
-def left_of_line(line, p, inverted_y_axis=True):
+def left_of_line(line, p):
 	'Return true iff p is to the left of the line'
 	a,b = line
 	val = _cross_prod_2d(_tuple_sub(b,a),_tuple_sub(p,a))
-	return val < 0 if inverted_y_axis else val > 0
+	return val < 0 if INVERTED_Y_AXIS else val > 0
 
 def on_line(line, p):
 	'Return true iff p is on the line'
