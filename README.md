@@ -12,10 +12,12 @@ A **simple** tool to build **simple** polygons
 - Sample points within a polygon
   - Rejection sampling
   - Triangulation sampling
+- Convex hull algorithms
+  - Gift wrapping
 
 <div align="center">
 <img src="media/triangulation.png" width="49.5%"/> <img src="media/random-points.png" width="49.5%"/> 
 </div>
 
 ## Todo
-- Implement convex hull algorithms
+- Implement Graham's scan algorithm

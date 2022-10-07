@@ -1,8 +1,6 @@
 import pygame
 from pygame import QUIT, KEYDOWN
-from pygame.locals import (
-	K_ESCAPE, K_BACKSPACE, 
-	K_t, K_r, MOUSEBUTTONDOWN)
+from pygame.locals import MOUSEBUTTONDOWN, K_BACKSPACE, K_ESCAPE, K_t, K_r, K_h
 
 from polygon_renderer import PolygonRenderer
 from polygon_builder import PolygonBuilder
@@ -30,6 +28,8 @@ def main():
 					renderer.draw_triangulation()
 				elif event.key == K_r:
 					renderer.draw_random_points()
+				elif event.key == K_h:
+					renderer.draw_convex_hull()
 
 def is_quit_event(event):
 	'Returns true iff event is a quit event'

@@ -220,7 +220,7 @@ def random_in_triangle(a,b,c):
 
 def _triangulation_sampling(poly, n):
 	'''Return n random, uniformly distributed points within the polygon by
-	triangulating, randomly choosing a triangule weighted by its area, and
+	triangulating, randomly choosing a triangle weighted by its area, and
 	generating a point within the triangle'''
 	diags, tris = triangulate(poly)
 
@@ -241,3 +241,28 @@ def random_in_polygon(poly, n, rand_method='triangulationsampling', point_inside
 		return _triangulation_sampling(poly, n)
 	else:
 		raise ValueError('rand_method should be "rejectionsampling" or "triangulationsampling"')
+
+def compute_convex_hull(poly, method='giftwrapping'):
+	'Return a list representing the indicies of points on the convex hull'
+	if method=='giftwrapping':
+		return _gift_wrapping_algorithm(poly)
+	else:
+		raise ValueError('method should be "giftwrapping"')
+
+def _gift_wrapping_algorithm(poly):
+	'''Return a list of tuples representing the points on the convex hull
+	using the gift wrapping algorithm'''
+	cur = poly[0]
+	for p in poly:
+		if p[0] < cur[0] or p[0] == cur[0] and p[1] < cur[1]:
+			cur = p
+	hull = []
+	while True:
+		hull.append(cur)
+		cur = poly[0]
+		for p in poly:
+			if hull[-1] == cur or left_of_line((hull[-1],cur), p):
+				cur = p
+		if hull[0] == cur: # looped around
+			break
+	return hull

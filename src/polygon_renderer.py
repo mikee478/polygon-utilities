@@ -1,9 +1,7 @@
 import pygame
 
-from polygon_utils import triangulate, random_in_polygon
-from config import (
-	WINDOW_TITLE, WINDOW_SIZE, 
-	RED, GREEN, BLACK, YELLOW)
+from polygon_utils import triangulate, random_in_polygon, compute_convex_hull
+from config import WINDOW_TITLE, WINDOW_SIZE, RED, GREEN, BLACK, YELLOW
 
 class PolygonRenderer:
 	EDGE_SIZE = 2
@@ -15,6 +13,14 @@ class PolygonRenderer:
 		self._screen = pygame.display.set_mode(WINDOW_SIZE)
 		self._builder = builder
 
+	def _clear_screen(self):
+		'Draw the screen black'
+		self._screen.fill(BLACK)
+
+	def _update_display(self):
+		'Update the full display Surface to the screen'
+		pygame.display.flip()
+
 	def draw_polygon(self):
 		'Draw polygon edges then vertices'
 		polygon = self._builder.get_polygon()
@@ -24,16 +30,16 @@ class PolygonRenderer:
 
 		n_edges = len(polygon)-1
 		for i in range(n_edges):
-			v1 = polygon[i]
-			v2 = polygon[i+1]
-			color = RED if ((v1,v2) in inter or (v2,v1) in inter) else GREEN
-			pygame.draw.line(self._screen, color, v1, v2, PolygonRenderer.EDGE_SIZE)
+			p1 = polygon[i]
+			p2 = polygon[i+1]
+			color = RED if ((p1,p2) in inter or (p2,p1) in inter) else GREEN
+			pygame.draw.line(self._screen, color, p1, p2, PolygonRenderer.EDGE_SIZE)
 		
 		if self._builder.is_closed():
-			v1 = polygon[-1]
-			v2 = polygon[0]
-			color = RED if ((v1,v2) in inter or (v2,v1) in inter) else GREEN
-			pygame.draw.line(self._screen, color, v1, v2, PolygonRenderer.EDGE_SIZE)
+			p1 = polygon[-1]
+			p2 = polygon[0]
+			color = RED if ((p1,p2) in inter or (p2,p1) in inter) else GREEN
+			pygame.draw.line(self._screen, color, p1, p2, PolygonRenderer.EDGE_SIZE)
 
 		for p in polygon:
 			pygame.draw.circle(self._screen, RED, p, PolygonRenderer.VERTEX_SIZE)
@@ -63,10 +69,16 @@ class PolygonRenderer:
 				pygame.draw.circle(self._screen, YELLOW, p, PolygonRenderer.POINT_SIZE)
 			self._update_display()
 
-	def _clear_screen(self):
-		'Draw the screen black'
-		self._screen.fill(BLACK)
-
-	def _update_display(self):
-		'Update the full display Surface to the screen'
-		pygame.display.flip()
+	def draw_convex_hull(self):
+		'If the polygon is simple, draws its convex hull'
+		if self._builder.is_simple():
+			polygon = self._builder.get_polygon()
+			conv_hull = compute_convex_hull(polygon)
+			n = len(conv_hull)
+			self._clear_screen()
+			self.draw_polygon()
+			for i in range(n):
+				p1 = conv_hull[i]
+				p2 = conv_hull[(i+1)%n]
+				pygame.draw.line(self._screen, YELLOW, p1, p2, PolygonRenderer.EDGE_SIZE)
+			self._update_display()
