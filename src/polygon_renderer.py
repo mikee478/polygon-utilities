@@ -1,7 +1,7 @@
 import pygame
 
 from polygon_utils import triangulate, random_in_polygon, compute_convex_hull
-from config import WINDOW_TITLE, WINDOW_SIZE, RED, GREEN, BLACK, YELLOW
+from config import WINDOW_TITLE, WINDOW_SIZE, RED, GREEN, BLACK, YELLOW, WHITE
 
 class PolygonRenderer:
 	EDGE_SIZE = 2
@@ -13,6 +13,13 @@ class PolygonRenderer:
 		self._screen = pygame.display.set_mode(WINDOW_SIZE)
 		self._builder = builder
 
+		self._font = pygame.font.SysFont('arial', 14)
+		self._controls = ['T=Triangulate','R=Random Points','H=Convex Hull']
+
+		self._clear_screen()
+		self._draw_controls()
+		self._update_display()
+
 	def _clear_screen(self):
 		'Draw the screen black'
 		self._screen.fill(BLACK)
@@ -20,6 +27,11 @@ class PolygonRenderer:
 	def _update_display(self):
 		'Update the full display Surface to the screen'
 		pygame.display.flip()
+
+	def _draw_controls(self):
+		'Draw the controls'
+		for i,s in enumerate(self._controls):
+			self._screen.blit(self._font.render(s, True, WHITE), (4,2+i*14))
 
 	def draw_polygon(self):
 		'Draw polygon edges then vertices'
@@ -44,6 +56,7 @@ class PolygonRenderer:
 		for p in polygon:
 			pygame.draw.circle(self._screen, RED, p, PolygonRenderer.VERTEX_SIZE)
 		
+		self._draw_controls()
 		self._update_display()
 
 	def draw_triangulation(self):

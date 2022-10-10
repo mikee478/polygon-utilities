@@ -7,6 +7,7 @@ from polygon_builder import PolygonBuilder
 
 def main():
 	pygame.init()
+	pygame.font.init()
 
 	builder = PolygonBuilder()
 	renderer = PolygonRenderer(builder)
