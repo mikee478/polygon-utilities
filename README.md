@@ -17,5 +17,7 @@ A **simple** tool to build **simple** polygons
   - Graham's scan
 
 <div align="center">
-<img src="media/triangulation.png" width="49.5%"/> <img src="media/random-points.png" width="49.5%"/> 
+<img src="media/triangulation.png" width="49%"/>  
+<img src="media/random-points.png" width="49%"/> 
+<img src="media/convex-hull.png" width="49%"/> 
 </div>
