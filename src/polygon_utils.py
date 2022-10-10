@@ -242,14 +242,16 @@ def random_in_polygon(poly, n, rand_method='triangulationsampling', point_inside
 	else:
 		raise ValueError('rand_method should be "rejectionsampling" or "triangulationsampling"')
 
-def compute_convex_hull(poly, method='giftwrapping'):
+def compute_convex_hull(poly, method='grahamscan'):
 	'Return a list representing the indicies of points on the convex hull'
-	if method=='giftwrapping':
-		return _gift_wrapping_algorithm(poly)
+	if method == 'giftwrapping':
+		return _gift_wrapping(poly)
+	elif method == 'grahamscan':
+		return _graham_scan(poly)
 	else:
-		raise ValueError('method should be "giftwrapping"')
+		raise ValueError('method should be "giftwrapping" or "grahamscan"')
 
-def _gift_wrapping_algorithm(poly):
+def _gift_wrapping(poly):
 	'''Return a list of tuples representing the points on the convex hull
 	using the gift wrapping algorithm'''
 	cur = poly[0]
@@ -265,4 +267,23 @@ def _gift_wrapping_algorithm(poly):
 				cur = p
 		if hull[0] == cur: # looped around
 			break
+	return hull
+
+def _graham_scan(poly):
+	'''Return a list of tuples representing the points on the convex hull
+	using Graham's scan'''
+	cur = poly[0]
+	for p in poly:
+		if p[0] < cur[0] or p[0] == cur[0] and p[1] < cur[1]:
+			cur = p
+	# sort by angle then decreasing distance
+	ordered = sorted(poly, reverse=True, key=lambda x:
+		(np.arctan2(x[1]-cur[1],x[0]-cur[0]), -(x[1]-cur[1])**2-(x[0]-cur[0])**2))
+	hull = [cur]
+	for p in ordered:
+		if p == cur: continue
+		# remove points until left test works
+		while len(hull) > 1 and not left_of_line((hull[-2],hull[-1]),p):
+			hull.pop()
+		hull.append(p)
 	return hull

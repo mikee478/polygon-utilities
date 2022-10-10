@@ -14,10 +14,8 @@ A **simple** tool to build **simple** polygons
   - Triangulation sampling
 - Convex hull algorithms
   - Gift wrapping
+  - Graham's scan
 
 <div align="center">
 <img src="media/triangulation.png" width="49.5%"/> <img src="media/random-points.png" width="49.5%"/> 
 </div>
-
-## Todo
-- Implement Graham's scan algorithm
