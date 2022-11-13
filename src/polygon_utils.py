@@ -27,9 +27,9 @@ def _winding_number(poly, p):
 	'Compute and return the winding number around p'
 	poly = np.array(poly)
 	poly -= p # center point on origin
-	
+
 	angles = np.arctan2(poly[:,1],poly[:,0]) # [-pi, pi]
-	
+
 	deltas = np.copy(angles)
 	deltas[1:] -= angles[:-1]
 	deltas[0] -= angles[-1]
@@ -83,7 +83,7 @@ def left_of_line(line, p):
 def on_line(line, p):
 	'Return true iff p is on the line'
 	a,b = line
-	return _cross_prod_2d(_tuple_sub(b,a),_tuple_sub(p,a)) == 0
+	return np.isclose(_cross_prod_2d(_tuple_sub(b,a),_tuple_sub(p,a)), 0)
 
 def on_segment(seg, p):
 	'Return true iff p is on the line segment'
@@ -94,7 +94,7 @@ def on_segment(seg, p):
 
 def collinear(a, b, c):
 	'Return true iff points a, b, and c are collinear'
-	return (a[1]-b[1])*(b[0]-c[0]) == (b[1]-c[1])*(a[0]-b[0])
+	return np.isclose((a[1]-b[1])*(b[0]-c[0]),(b[1]-c[1])*(a[0]-b[0]))
 
 def between(p, q, r):
 	'Return true iff q is between p and r (inclusive)'
@@ -287,3 +287,65 @@ def _graham_scan(poly):
 			hull.pop()
 		hull.append(p)
 	return hull
+
+def ray_segment_intersection(ray, seg):
+	'''Returns a scalar u where ray[0]+u*ray[1]=p. If ray and line segment
+	do not intersect float('inf') is returned.'''
+	a = ray[0]
+	b = ray[1]-ray[0]
+	c = seg[0]
+	d = seg[1]-seg[0]
+
+	if on_segment(seg, ray[0]):
+		return 0
+
+	denom = d[1]*b[0]-d[0]*b[1]
+	if not np.isclose(denom, 0):
+		v = ((c[0]-a[0])*b[1]-(c[1]-a[1])*b[0]) / denom
+
+		if not np.isclose(b[0], 0):
+			u = (c[0]+v*d[0]-a[0]) / b[0]
+		elif not np.isclose(b[1], 0):
+			u = (c[1]+v*d[1]-a[1]) / b[1]
+
+		if u >= 0 and 0 <= v <= 1:
+			return u
+	elif collinear(ray[0], seg[0], seg[1]):
+		i = 0 if not np.isclose(b[0], 0) else 1
+
+		u0 = (seg[0][i] - ray[0][i]) / b[i]
+		u1 = (seg[1][i] - ray[0][i]) / b[i]
+
+		if u0 >= 0 and u1 >= 0:
+			return min(u0,u1)
+		elif u0 * u1 <= 0:
+			return 0
+
+	return float('inf')
+
+def compute_visibility_polygon(p, poly, is_closed, bounds):
+	points = []
+	n = 100
+	for i in range(n):
+		theta = i/n*2*np.pi
+		ray = np.array(((0,0),(np.cos(theta),np.sin(theta))))
+		ray += p
+
+		min_t = float('inf')
+
+		n_verts = len(poly)
+		n_edges = n_verts if is_closed else n_verts-1
+		for i in range(n_edges):
+			seg = np.array((poly[i],poly[(i+1)%n_verts]))
+			t = ray_segment_intersection(ray, seg)
+			min_t = min(t,min_t)
+
+		n_verts = len(bounds)
+		for i in range(n_verts):
+			seg = np.array((bounds[i],bounds[(i+1)%n_verts]))
+			t = ray_segment_intersection(ray, seg)
+			min_t = min(t,min_t)
+
+		if min_t != float('inf'):
+			points.append(ray[0]+(ray[1]-ray[0])*min_t)
+	return points
