@@ -15,12 +15,11 @@ A **simple** tool to build **simple** polygons
 - Convex hull algorithms
   - Gift wrapping
   - Graham's scan
+- Visibility polygon
 
 <div align="center">
-<img src="media/triangulation.png" width="49%"/>  
+<img src="media/triangulation.png" width="49%"/> 
 <img src="media/random-points.png" width="49%"/> 
 <img src="media/convex-hull.png" width="49%"/> 
+<img src="media/visibility-polygon.png" width="49%"/> 
 </div>
-
-## To do
-- Point visibility
