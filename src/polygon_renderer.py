@@ -1,12 +1,17 @@
 import pygame
+import numpy as np
 
-from polygon_utils import triangulate, random_in_polygon, compute_convex_hull, compute_visibility_polygon
-from config import WINDOW_TITLE, WINDOW_SIZE, RED, GREEN, BLACK, YELLOW, WHITE
+from polygon_utils import (triangulate, random_in_polygon, 
+	compute_convex_hull, compute_visibility_polygon)
+from config import (WINDOW_TITLE, WINDOW_SIZE, 
+	RED, GREEN, BLACK, YELLOW, WHITE)
 
 class PolygonRenderer:
 	EDGE_SIZE = 2
 	VERTEX_SIZE = 3
 	POINT_SIZE = 1
+
+	VIS_COLOR = (152,168,167)
 
 	def __init__(self, builder):
 		pygame.display.set_caption(WINDOW_TITLE)
@@ -122,16 +127,30 @@ class PolygonRenderer:
 		self._update_display()
 
 	def draw_visibility_polygon(self):
-		'Draw the visibility polygon'''
+		'Draws the visibility polygon'''
 		self._clear_screen()
-		self._draw_polygon()
 
-		p = pygame.mouse.get_pos()
+		pos = pygame.mouse.get_pos()
 		poly = self._builder.get_polygon()
 		is_closed = self._builder.is_closed()
-		points = compute_visibility_polygon(p, poly, is_closed, self.bounds)
-		for p2 in points:
-			pygame.draw.line(self._screen, YELLOW, p, p2, PolygonRenderer.EDGE_SIZE)
+		points = compute_visibility_polygon(pos, poly, is_closed, self.bounds)
 
+		n = len(points)
+		for i in range(n):
+			pygame.draw.polygon(self._screen, PolygonRenderer.VIS_COLOR, 
+				(pos, points[i], points[(i+1)%n]))
+
+		N_CIRCLES = 8
+		CIRCLE_RADIUS = 2
+		CURSOR_RADIUS = 10
+
+		pygame.draw.circle(self._screen, WHITE, pos, CIRCLE_RADIUS)
+
+		for i in range(N_CIRCLES):
+			theta = i/N_CIRCLES * np.pi*2
+			p = CURSOR_RADIUS * np.array((np.cos(theta),np.sin(theta))) + pos
+			pygame.draw.circle(self._screen, WHITE, p, CIRCLE_RADIUS)
+
+		self._draw_polygon()
 		self._draw_controls()
 		self._update_display()

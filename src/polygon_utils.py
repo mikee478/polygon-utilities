@@ -324,17 +324,32 @@ def ray_segment_intersection(ray, seg):
 	return float('inf')
 
 def compute_visibility_polygon(p, poly, is_closed, bounds):
-	points = []
-	n = 100
-	for i in range(n):
-		theta = i/n*2*np.pi
-		ray = np.array(((0,0),(np.cos(theta),np.sin(theta))))
-		ray += p
+	'''Returns a list of points representing the visibility polygon for point p'''
+	rays = []
+	p = np.array(p)
+	DELTA = 0.001
+	for point in poly + bounds:
+		d = point - p
+		r = np.linalg.norm(d)
+		theta = np.arctan2(d[1],d[0])
+		rays.append((point,theta))
 
+		theta_pos = theta+DELTA
+		p_pos = r * np.array((np.cos(theta_pos), np.sin(theta_pos))) + p
+		rays.append((p_pos, theta_pos))
+
+		theta_neg = theta-DELTA
+		p_neg = r * np.array((np.cos(theta_neg), np.sin(theta_neg))) + p
+		rays.append((p_neg, theta_neg))
+
+	rays.sort(key=lambda x: x[1])
+	points = []
+	for r in rays:
+		ray = (p,r[0])
 		min_t = float('inf')
 
 		n_verts = len(poly)
-		n_edges = n_verts if is_closed else n_verts-1
+		n_edges = n_verts if is_closed else n_verts - 1
 		for i in range(n_edges):
 			seg = np.array((poly[i],poly[(i+1)%n_verts]))
 			t = ray_segment_intersection(ray, seg)
@@ -348,4 +363,5 @@ def compute_visibility_polygon(p, poly, is_closed, bounds):
 
 		if min_t != float('inf'):
 			points.append(ray[0]+(ray[1]-ray[0])*min_t)
+
 	return points
