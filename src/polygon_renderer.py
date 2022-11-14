@@ -19,6 +19,7 @@ class PolygonRenderer:
 		self._font = pygame.font.SysFont('arial', 14)
 		self._controls = [
 			'Click = Add Vertex',
+			'Click Near Tail = Close Polygon',
 			'Delete = Remove Last Vertex',
 			'T = Triangulate',
 			'R = Random Points',
